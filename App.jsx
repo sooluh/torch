@@ -9,17 +9,17 @@ import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const LOCATION_TRACKING = "location-tracking";
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON = process.env.EXPO_PUBLIC_SUPABASE_ANON!;
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON = process.env.EXPO_PUBLIC_SUPABASE_ANON;
 
 const ExpoSecureStoreAdapter = {
-  getItem: (key: string) => {
+  getItem: (key) => {
     return SecureStore.getItemAsync(key);
   },
-  setItem: (key: string, value: string) => {
+  setItem: (key, value) => {
     SecureStore.setItemAsync(key, value);
   },
-  removeItem: (key: string) => {
+  removeItem: (key) => {
     SecureStore.deleteItemAsync(key);
   },
 };
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  const [status, setStatus] = useState<string>("Isn't it cool first?");
+  const [status, setStatus] = useState("Isn't it cool first?");
 
   const initialize = async () => {
     const foreground = await Location.requestForegroundPermissionsAsync();
@@ -93,30 +93,27 @@ export default function App() {
   );
 }
 
-TaskManager.defineTask<{ locations: Location.LocationObject[] }>(
-  LOCATION_TRACKING,
-  async ({ data, error }) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
+TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    if (data) {
-      const [current] = data.locations;
-      const lat = current.coords.latitude;
-      const lng = current.coords.longitude;
+  if (data) {
+    const [current] = data.locations;
+    const lat = current.coords.latitude;
+    const lng = current.coords.longitude;
 
-      await supabase
-        .from("settings")
-        .update({ value: lat })
-        .eq("key", "latitude");
+    await supabase
+      .from("settings")
+      .update({ value: lat })
+      .eq("key", "latitude");
 
-      await supabase
-        .from("settings")
-        .update({ value: lng })
-        .eq("key", "longitude");
+    await supabase
+      .from("settings")
+      .update({ value: lng })
+      .eq("key", "longitude");
 
-      console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${lng}`);
-    }
-  },
-);
+    console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${lng}`);
+  }
+});
