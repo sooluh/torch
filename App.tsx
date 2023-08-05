@@ -10,7 +10,7 @@ const LOCATION_TRACKING = "location-tracking";
 const DISCORD_USER_ID = process.env.EXPO_PUBLIC_DISCORD_USER_ID!;
 const LANYARD_API_KEY = process.env.EXPO_PUBLIC_LANYARD_API_KEY!;
 
-console.log(DISCORD_USER_ID, LANYARD_API_KEY)
+console.log(DISCORD_USER_ID, LANYARD_API_KEY);
 
 const styles = StyleSheet.create({
   container: {
@@ -27,7 +27,10 @@ const update = async (lat: number, lon: number) => {
   const lanyard = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}/kv/location`;
 
   const json = await fetch(reverse).then((res) => res.json());
-  const location = [json.address.town, json.address.country_code.toUpperCase()].join(", ");
+  const location = [
+    json.address.town,
+    json.address.country_code.toUpperCase(),
+  ].join(", ");
 
   const response = await fetch(lanyard, {
     method: "PUT",
