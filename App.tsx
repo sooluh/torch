@@ -47,8 +47,6 @@ export default function App() {
   const [status, setStatus] = useState<string>("Isn't it cool first?");
 
   const initialize = async () => {
-    Location.installWebGeolocationPolyfill();
-
     const foreground = await Location.requestForegroundPermissionsAsync();
     const background = await Location.requestBackgroundPermissionsAsync();
 
