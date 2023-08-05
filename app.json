@@ -2,7 +2,7 @@
   "expo": {
     "name": "Torch",
     "slug": "torch",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
