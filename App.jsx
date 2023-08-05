@@ -55,10 +55,8 @@ export default function App() {
       return;
     }
 
-    await Location.enableNetworkProviderAsync();
-
     await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
-      accuracy: Location.Accuracy.High,
+      accuracy: Location.Accuracy.Highest,
       // 1 minute
       timeInterval: 60000,
       distanceInterval: 0,
