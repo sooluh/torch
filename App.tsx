@@ -28,7 +28,7 @@ const update = async (lat: number, lon: number) => {
 
   const json = await fetch(reverse).then((res) => res.json());
   const location = [
-    json.address.town,
+    json.address.town || json.address.county || 'Mars',
     json.address.country_code.toUpperCase(),
   ].join(", ");
 
