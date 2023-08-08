@@ -1,16 +1,12 @@
 import "react-native-url-polyfill/auto";
 import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
-import * as TaskManager from "expo-task-manager";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { GlobalProvider } from "./context/GlobalContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-
-const LOCATION_TRACKING = "location-tracking";
-const DISCORD_USER_ID = process.env.EXPO_PUBLIC_DISCORD_USER_ID!;
-const LANYARD_API_KEY = process.env.EXPO_PUBLIC_LANYARD_API_KEY!;
-
-console.log(DISCORD_USER_ID, LANYARD_API_KEY);
+import { ListDetailComponent } from "./components/ListDetailComponent";
+import { TaskManagerComponent } from "./components/TaskManagerComponent";
 
 const styles = StyleSheet.create({
   container: {
@@ -18,30 +14,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#151717",
     alignItems: "center",
     justifyContent: "center",
-    padding: 10,
+    padding: 30,
+    paddingTop: 80,
+    paddingBottom: 80,
+    gap: 10,
   },
 });
 
-const update = async (lat: number, lon: number) => {
-  const reverse = `https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}`;
-  const lanyard = `https://api.lanyard.rest/v1/users/${DISCORD_USER_ID}/kv/location`;
-
-  const json = await fetch(reverse).then((res) => res.json());
-  const location = [
-    json.address.town || json.address.county?.replace('Regency', '')?.trim() || json.address.village || 'Mars',
-    json.address.country_code.toUpperCase(),
-  ].join(", ");
-
-  const response = await fetch(lanyard, {
-    method: "PUT",
-    body: location,
-    headers: { Authorization: LANYARD_API_KEY },
-  });
-
-  console.log(response);
-};
-
 export default function App() {
+  const LOCATION_TRACKING = "location-tracking";
   const [status, setStatus] = useState<string>("Isn't it cool first?");
 
   const initialize = async () => {
@@ -49,7 +30,7 @@ export default function App() {
     const background = await Location.requestBackgroundPermissionsAsync();
 
     if (foreground.status !== "granted" || background.status !== "granted") {
-      setStatus("What's wrong with you?!");
+      setStatus("What's wrong\nwith you?!");
       return;
     }
 
@@ -65,7 +46,7 @@ export default function App() {
     );
 
     setStatus(
-      started ? "Is monitoring your moves!" : "Oops! Unable to monitor :(",
+      started ? "Is monitoring\nyour moves!" : "Oops! Unable\nto monitor :(",
     );
   };
 
@@ -74,36 +55,30 @@ export default function App() {
   }, []);
 
   return (
-    <>
-      <StatusBar style="auto" />
-
+    <GlobalProvider>
       <SafeAreaProvider>
+        <StatusBar style="auto" />
+
         <View style={styles.container}>
-          <Text style={{ fontSize: 20, color: "#ecedee" }}>{status}</Text>
-          <Text style={{ color: "#ecedee", marginTop: 10 }}>
+          <Text
+            style={{
+              fontSize: 25,
+              color: "#ecedee",
+              marginBottom: 20,
+              textAlign: "center",
+            }}
+          >
+            {status.toUpperCase()}
+          </Text>
+
+          <ListDetailComponent />
+          <TaskManagerComponent />
+
+          <Text style={{ color: "#ecedee", marginTop: 20 }}>
             Follow @suluh_s
           </Text>
         </View>
       </SafeAreaProvider>
-    </>
+    </GlobalProvider>
   );
 }
-
-TaskManager.defineTask<{ locations: Location.LocationObject[] }>(
-  LOCATION_TRACKING,
-  async ({ data, error }) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    if (data) {
-      const [current] = data.locations;
-      const lat = current.coords.latitude;
-      const lon = current.coords.longitude;
-
-      await update(lat, lon);
-      console.log(`${new Date(Date.now()).toLocaleString()}: ${lat},${lon}`);
-    }
-  },
-);
